@@ -1,5 +1,7 @@
 package RBTree;
 
+import java.util.concurrent.BlockingDeque;
+
 public class RedAndBlackTree<T extends Comparable<T>>  {
     private TreeNode<T> Root;    // root
     private int size;
@@ -102,7 +104,60 @@ public class RedAndBlackTree<T extends Comparable<T>>  {
     }
 
     private void insertFixUp(TreeNode<T> node) {
+        TreeNode<T> parent = node.parent;
+        while ((parent !=null) && parent.color == RED) {
+            TreeNode<T> gparent = parent.parent;
+            if (parent == gparent.left) {
+                // case 1
+                TreeNode<T> uncle = gparent.right;
+                if((uncle!=null) && (uncle.color==RED)){
+                    uncle.color = BLACK;
+                    parent.color = BLACK;
+                    gparent.color = RED;
+                    node = gparent;
+                    parent = node.parent;
+                    continue;
+                }
+                // case 2
+                if(parent.right==node){
+                    node = parent;
+                    leftRotate(node);
+                    parent = node.parent;
+                }
+                // case 3
+                if(parent.left==node){
+                    parent.color = BLACK;
+                    gparent.color = RED;
+                    rightRotate(gparent);
+                }
 
+
+            }else {
+                // case 1
+                TreeNode<T> uncle = gparent.left;
+                if((uncle!=null) && (uncle.color==RED)){
+                    uncle.color = BLACK;
+                    parent.color = BLACK;
+                    gparent.color = RED;
+                    node = gparent;
+                    parent = node.parent;
+                    continue;
+                }
+                // case 2
+                if(parent.right==node){
+                    node = parent;
+                    rightRotate(node);
+                    parent = node.parent;
+                }
+                // case 3
+                if(parent.left==node){
+                    parent.color = BLACK;
+                    gparent.color = RED;
+                    leftRotate(gparent);
+                }
+            }
+        }
+        Root.color = BLACK;
     }
 
     private void leftRotate(TreeNode<T> node) {
@@ -139,6 +194,48 @@ public class RedAndBlackTree<T extends Comparable<T>>  {
         }
         left.right = node;
         node.parent = left;
+    }
+
+    public TreeNode<T> successor(TreeNode<T> node) {
+        if (node.right != null)
+            return minimum(node.right);
+
+        TreeNode<T> succ = node.parent;
+        while ((succ!=null) && (node==succ.right)) {
+            node = succ;
+            succ = succ.parent;
+        }
+
+        return succ;
+    }
+
+    private TreeNode<T> minimum(TreeNode<T> node) {
+        if (node == null)
+            return null;
+        while(node.left != null)
+            node = node.left;
+        return node;
+    }
+
+    public TreeNode<T> predecessor(TreeNode<T> node) {
+        if (node.left != null)
+            return maximum(node.left);
+
+        TreeNode<T> pre = node.parent;
+        while ((pre!=null) && (node==pre.left)) {
+            node = pre;
+            pre = pre.parent;
+        }
+
+        return pre;
+    }
+
+    private TreeNode<T> maximum(TreeNode<T> node) {
+        if (node == null)
+            return null;
+        while(node.right != null)
+            node = node.right;
+        return node;
     }
 
     private void preOrder(TreeNode<T> tree) {
@@ -179,4 +276,22 @@ public class RedAndBlackTree<T extends Comparable<T>>  {
     public void postOrder() {
         postOrder(Root);
     }
+
+    private void destroy(TreeNode<T> tree) {
+        if (tree==null)
+            return ;
+
+        if (tree.left != null)
+            destroy(tree.left);
+        if (tree.right != null)
+            destroy(tree.right);
+
+        tree=null;
+    }
+
+    public void clear() {
+        destroy(Root);
+        Root = null;
+    }
+
 }
