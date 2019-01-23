@@ -16,7 +16,8 @@ public class BuildTreeTest {
         tree.inOrder();
         System.out.println();
 
-        //tree.print();
+        tree.print();
+        tree.checkBlackNum();
 
         //System.out.println(tree.getSize());
 

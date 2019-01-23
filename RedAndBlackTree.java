@@ -3,6 +3,7 @@ package RBTree;
 public class RedAndBlackTree<T extends Comparable<T>>  {
     private TreeNode<T> Root;    // root
     private int size;
+    private int BlackNodenum;
     private static final boolean RED   = false;
     private static final boolean BLACK = true;
 
@@ -194,6 +195,17 @@ public class RedAndBlackTree<T extends Comparable<T>>  {
         node.parent = left;
     }
 
+    public void remove(T key) {
+        TreeNode<T> node;
+
+        if ((node = search(Root, key)) != null)
+            remove(node);
+    }
+
+    private void remove(TreeNode<T> node){
+
+    }
+
     public TreeNode<T> successor(TreeNode<T> node) {
         if (node.right != null)
             return minimum(node.right);
@@ -294,24 +306,57 @@ public class RedAndBlackTree<T extends Comparable<T>>  {
         postOrder(Root);
     }
 
-//    private void print(TreeNode<T> tree, T key, int direction) {
-//
-//        if(tree != null) {
-//
-//            if(direction==0)
-//                System.out.printf("%2d(B) is root\n", tree.getKey());
-//            else
-//                System.out.printf("%2d(%s) is %2d's %6s child\n", tree.getKey(), tree.color == RED?"R":"B", key, direction==1?"right" : "left");
-//
-//            print(tree.left, tree.getKey(), -1);
-//            print(tree.right,tree.getKey(),  1);
-//        }
-//    }
-//
-//    public void print() {
-//        if (Root != null)
-//            print(Root, Root.getKey(), 0);
-//    }
+    private void printRBTreeInfo(TreeNode<T> tree, T key, int index) {
+
+        if(tree != null) {
+
+            if(index==0)
+                System.out.printf("%2d(BLK) is root\n", tree.getKey());
+            else if(index==1)
+                System.out.printf("%2d(%s) is %2d's rChild\n", tree.getKey(), tree.color == RED?"RED":"BLk", key);
+            else
+                System.out.printf("%2d(%s) is %2d's lChild\n", tree.getKey(), tree.color == RED?"RED":"BLK", key);
+
+            printRBTreeInfo(tree.left, tree.getKey(), -1);
+            printRBTreeInfo(tree.right,tree.getKey(),  1);
+        }
+    }
+
+    public void print() {
+        if (Root != null)
+            printRBTreeInfo(Root, Root.getKey(), 0);
+    }
+
+    private void checkBlackNum(TreeNode<T> node, int count){
+        if(node == null){
+            count++;
+            //System.out.print(count+" ");
+            if(BlackNodenum == -1)
+                BlackNodenum = count;
+            else if(BlackNodenum > -1){
+                if(BlackNodenum != count)
+                    BlackNodenum = -2;
+            }
+            return;
+        }
+        if(node.color == BLACK){
+            count++;
+        }
+        checkBlackNum(node.left, count);
+        checkBlackNum(node.right, count);
+    }
+
+
+    public void checkBlackNum(){
+        BlackNodenum = -1;
+        checkBlackNum(Root, 0);
+        if(BlackNodenum == -2)
+            System.out.println("Not a valid RBTree");
+        else if(BlackNodenum == 0)
+            System.out.println("Empty Tree");
+        else
+            System.out.println("Number of Black Nodes in each path: "+BlackNodenum);
+    }
 
     private void destroy(TreeNode<T> tree) {
         if (tree==null)
