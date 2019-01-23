@@ -1,7 +1,5 @@
 package RBTree;
 
-import java.util.concurrent.BlockingDeque;
-
 public class RedAndBlackTree<T extends Comparable<T>>  {
     private TreeNode<T> Root;    // root
     private int size;
@@ -104,8 +102,9 @@ public class RedAndBlackTree<T extends Comparable<T>>  {
     }
 
     private void insertFixUp(TreeNode<T> node) {
-        TreeNode<T> parent = node.parent;
-        while ((parent !=null) && parent.color == RED) {
+        TreeNode<T> parent;
+        while ((node.parent !=null) && (node.parent.color == RED)) {
+            parent = node.parent;
             TreeNode<T> gparent = parent.parent;
             if (parent == gparent.left) {
                 // case 1
@@ -125,13 +124,11 @@ public class RedAndBlackTree<T extends Comparable<T>>  {
                     parent = node.parent;
                 }
                 // case 3
-                if(parent.left==node){
+                if(parent.left==node) {
                     parent.color = BLACK;
                     gparent.color = RED;
                     rightRotate(gparent);
                 }
-
-
             }else {
                 // case 1
                 TreeNode<T> uncle = gparent.left;
@@ -144,17 +141,18 @@ public class RedAndBlackTree<T extends Comparable<T>>  {
                     continue;
                 }
                 // case 2
-                if(parent.right==node){
+                if(parent.left==node){
                     node = parent;
                     rightRotate(node);
                     parent = node.parent;
                 }
                 // case 3
-                if(parent.left==node){
+                if(parent.right==node) {
                     parent.color = BLACK;
                     gparent.color = RED;
                     leftRotate(gparent);
                 }
+
             }
         }
         Root.color = BLACK;
@@ -238,6 +236,25 @@ public class RedAndBlackTree<T extends Comparable<T>>  {
         return node;
     }
 
+    private TreeNode<T> search(TreeNode<T> node, T key) {
+        while (node!=null) {
+            int temp = key.compareTo(node.getKey());
+
+            if (temp < 0)
+                node = node.left;
+            else if (temp > 0)
+                node = node.right;
+            else
+                return node;
+        }
+
+        return node;
+    }
+
+    public TreeNode<T> search(T key) {
+        return search(Root, key);
+    }
+
     private void preOrder(TreeNode<T> tree) {
         if(tree != null) {
             System.out.print(tree.toString()+" ");
@@ -276,6 +293,25 @@ public class RedAndBlackTree<T extends Comparable<T>>  {
     public void postOrder() {
         postOrder(Root);
     }
+
+//    private void print(TreeNode<T> tree, T key, int direction) {
+//
+//        if(tree != null) {
+//
+//            if(direction==0)
+//                System.out.printf("%2d(B) is root\n", tree.getKey());
+//            else
+//                System.out.printf("%2d(%s) is %2d's %6s child\n", tree.getKey(), tree.color == RED?"R":"B", key, direction==1?"right" : "left");
+//
+//            print(tree.left, tree.getKey(), -1);
+//            print(tree.right,tree.getKey(),  1);
+//        }
+//    }
+//
+//    public void print() {
+//        if (Root != null)
+//            print(Root, Root.getKey(), 0);
+//    }
 
     private void destroy(TreeNode<T> tree) {
         if (tree==null)

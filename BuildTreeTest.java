@@ -8,12 +8,15 @@ public class BuildTreeTest {
 
         RedAndBlackTree<Integer> tree=new RedAndBlackTree<Integer>();
 
-        for(int i = 0; i < a.length; i++) {
+        for(int i = 0; i < a.length ; i++) {
             tree.insert(a[i]);
         }
 
         System.out.println("in-order: ");
         tree.inOrder();
+        System.out.println();
+
+        //tree.print();
 
         //System.out.println(tree.getSize());
 
