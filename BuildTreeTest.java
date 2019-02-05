@@ -4,7 +4,7 @@ public class BuildTreeTest {
     public static void main(String[] args) {
         System.out.println("Red and Black Tree");
 
-        int a[] = {10, 40, 30, 60, 90, 70, 20, 50, 80};
+        int a[] = {11, 2, 14, 1, 7, 15, 5, 8};
         String time[] ={"21.08.00","21.08.30"};
 
         RedAndBlackTree<String> tree=new RedAndBlackTree<>();

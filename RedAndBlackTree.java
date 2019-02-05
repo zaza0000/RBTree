@@ -214,7 +214,6 @@ public class RedAndBlackTree<T extends Comparable<T>>  {
         if(node.left!=null && node.right!=null){
             TreeNode<T> replace = node;
             replace = successor(replace);
-            //replace = predecessor(replace);
 
             if(node.parent!=null){
                 if (node.parent.left == node)
