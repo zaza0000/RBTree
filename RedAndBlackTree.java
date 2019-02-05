@@ -1,7 +1,7 @@
 package RBTree;
 
 public class RedAndBlackTree<T extends Comparable<T>>  {
-    private TreeNode<T> Root;    // root
+    private TreeNode<T> Root;    // root - Channel Tree
     private int size;
     private int BlackNodenum;
     private static final boolean RED   = false;
@@ -17,6 +17,7 @@ public class RedAndBlackTree<T extends Comparable<T>>  {
         TreeNode<T> left;    // left child
         TreeNode<T> right;    // right child
         TreeNode<T> parent;    // parent
+        TreeNode<Integer> tRoot;     // Time Tree
 
         public TreeNode(T time, String channel, boolean color, TreeNode<T> parent, TreeNode<T> left, TreeNode<T> right) {
             this.time = time;
@@ -198,12 +199,149 @@ public class RedAndBlackTree<T extends Comparable<T>>  {
     public void remove(T key) {
         TreeNode<T> node;
 
-        if ((node = search(Root, key)) != null)
+        if ((node = search(Root, key)) != null){
             remove(node);
+            size--;
+        }else{
+            System.out.println(key+" Not Found");
+        }
     }
 
     private void remove(TreeNode<T> node){
+        TreeNode<T> nChild, nParent; // (right) child of node, parent of node
+        boolean color;
 
+        if(node.left!=null && node.right!=null){
+            TreeNode<T> replace = node;
+            replace = successor(replace);
+            //replace = predecessor(replace);
+
+            if(node.parent!=null){
+                if (node.parent.left == node)
+                    node.parent.left = replace;
+                else
+                    node.parent.right = replace;
+            }else{
+                this.Root = replace;
+            }
+            nChild = replace.right;
+            nParent = replace.parent;
+            color = replace.color;
+            if(nParent == node){
+                nParent = replace;
+            }else{
+                if (nChild != null)
+                    nChild.parent = nParent;
+                nParent.left = nChild;
+                replace.right = node.right;
+                node.right.parent = replace;
+            }
+
+            replace.parent = node.parent;
+            replace.color = node.color;
+            replace.left = node.left;
+            node.left.parent = replace;
+            if(color == BLACK)
+                removeFixUp(nChild, nParent);
+            node = null;
+            return ;
+        }
+
+        if(node.left !=null){
+            nChild = node.left;
+        }else{
+            nChild = node.right;
+        }
+        nParent = node.parent;
+        color = node.color;
+
+        if(nChild != null)
+            nChild.parent = nParent;
+
+        if(nParent!=null){
+            if(nParent.left == node)
+                nParent.left = nChild;
+            else
+                nParent.right = nChild;
+        }else{
+            this.Root = nChild;
+        }
+
+        if(color == BLACK)
+            removeFixUp(nChild, nParent);
+        node = null;
+    }
+
+    private void removeFixUp(TreeNode<T> node, TreeNode<T> parent) {
+        TreeNode<T> nBrother; // brother of node
+
+        while((node==null || node.color==BLACK) && (node != this.Root)){
+            if(parent.left == node){
+                nBrother = parent.right;
+                if(nBrother.color == RED){
+                    // Case 1:
+                    nBrother.color = BLACK;
+                    parent.color = RED;
+                    leftRotate(parent);
+                    nBrother = parent.right;
+                }
+                if((nBrother.left==null || nBrother.left.color==BLACK) &&
+                        (nBrother.right==null || nBrother.right.color==BLACK)){
+                    // Case 2:
+                    nBrother.color = RED;
+                    node = parent;
+                    parent = node.parent;
+                }else{
+                    if(nBrother.right==null || nBrother.right.color==BLACK){
+                        // Case 3:
+                        nBrother.left.color = BLACK;
+                        nBrother.color = RED;
+                        rightRotate(nBrother);
+                        nBrother = parent.right;
+                    }
+                    // Case 4:
+                    nBrother.color = parent.color;
+                    parent.color = BLACK;
+                    nBrother.right.color = BLACK;
+                    leftRotate(parent);
+                    node = this.Root;
+                    break;
+                }
+            }else{
+                nBrother = parent.left;
+                if(nBrother.color == RED){
+                    // Case 1:
+                    nBrother.color = BLACK;
+                    parent.color = RED;
+                    rightRotate(parent);
+                    nBrother = parent.left;
+                }
+                if((nBrother.left==null || nBrother.left.color==BLACK) &&
+                        (nBrother.right==null || nBrother.right.color==BLACK)){
+                    // Case 2:
+                    nBrother.color = RED;
+                    node = parent;
+                    parent = node.parent;
+                }else{
+                    if(nBrother.left==null || nBrother.left.color==BLACK){
+                        // Case 3:
+                        nBrother.right.color = BLACK;
+                        nBrother.color = RED;
+                        leftRotate(nBrother);
+                        nBrother = parent.left;
+                    }
+                    // Case 4:
+                    nBrother.color = parent.color;
+                    parent.color = BLACK;
+                    nBrother.left.color = BLACK;
+                    rightRotate(parent);
+                    node = this.Root;
+                    break;
+                }
+            }
+        }
+        if(node!=null)
+            node.color = BLACK;
     }
 
     public TreeNode<T> successor(TreeNode<T> node) {
@@ -311,14 +449,14 @@ public class RedAndBlackTree<T extends Comparable<T>>  {
         if(tree != null) {
 
             if(index==0)
-                System.out.printf("%2d(BLK) is root\n", tree.getKey());
+                System.out.printf("%2s(BLK) is root\n", tree.getKey());
             else if(index==1)
-                System.out.printf("%2d(%s) is %2d's rChild\n", tree.getKey(), tree.color == RED?"RED":"BLk", key);
+                System.out.printf("%2s(%s) is %2s's rChild\n", tree.getKey(), tree.color == RED?"RED":"BLk", key);
             else
-                System.out.printf("%2d(%s) is %2d's lChild\n", tree.getKey(), tree.color == RED?"RED":"BLK", key);
+                System.out.printf("%2s(%s) is %2s's lChild\n", tree.getKey(), tree.color == RED?"RED":"BLK", key);
 
             printRBTreeInfo(tree.left, tree.getKey(), -1);
-            printRBTreeInfo(tree.right,tree.getKey(),  1);
+            printRBTreeInfo(tree.right, tree.getKey(),  1);
         }
     }
 
@@ -342,6 +480,8 @@ public class RedAndBlackTree<T extends Comparable<T>>  {
         if(node.color == BLACK){
             count++;
         }
+        if(node.color == RED && node.parent.color == RED)
+            BlackNodenum = -3;
         checkBlackNum(node.left, count);
         checkBlackNum(node.right, count);
     }
@@ -350,8 +490,10 @@ public class RedAndBlackTree<T extends Comparable<T>>  {
     public void checkBlackNum(){
         BlackNodenum = -1;
         checkBlackNum(Root, 0);
+        if(BlackNodenum == -3)
+            System.out.println("Not a valid RBTree, two successive red nodes");
         if(BlackNodenum == -2)
-            System.out.println("Not a valid RBTree");
+            System.out.println("Not a valid RBTree, different number of black nodes");
         else if(BlackNodenum == 0)
             System.out.println("Empty Tree");
         else
