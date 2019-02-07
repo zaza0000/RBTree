@@ -1,7 +1,10 @@
 package RBTree;
 
+import java.util.List;
+import java.util.Map;
+
 public class RedAndBlackTree<T extends Comparable<T>>  {
-    private TreeNode<T> Root;    // root - Channel Tree
+    private TreeNode<T> Root;
     private int size;
     private int BlackNodenum;
     private static final boolean RED   = false;
@@ -10,14 +13,15 @@ public class RedAndBlackTree<T extends Comparable<T>>  {
     public class TreeNode<T extends Comparable<T>> {
         // Data part
         private T time;               // key
+        private String startTime;
+        private String endTime;
         private String channel;        // channel name
-        private String addressIndex;    // index
+        private String fileName;    // indexing
         // Tree part
         boolean color;        // red or black
         TreeNode<T> left;    // left child
         TreeNode<T> right;    // right child
         TreeNode<T> parent;    // parent
-        TreeNode<Integer> tRoot;     // Time Tree
 
         public TreeNode(T time, String channel, boolean color, TreeNode<T> parent, TreeNode<T> left, TreeNode<T> right) {
             this.time = time;
@@ -37,8 +41,8 @@ public class RedAndBlackTree<T extends Comparable<T>>  {
             return channel;
         }
 
-        public String getAddressIndex(){
-            return addressIndex;
+        public String getFileName(){
+            return fileName;
         }
 
         public String toString() {
@@ -53,6 +57,10 @@ public class RedAndBlackTree<T extends Comparable<T>>  {
 
     public int getSize(){
         return size;
+    }
+
+    public void insertCSF(Map<String, List<String>> fileData){
+
     }
 
     public void insert(T time){

@@ -21,6 +21,7 @@ public class BuildTreeTest {
         System.out.println();
         System.out.println("RBTreeInfo:");
         tree.print();
+        tree.checkBlackNum();
         System.out.println();
         System.out.println("remove:");
         for(int i = 0; i < a.length ; i++)
