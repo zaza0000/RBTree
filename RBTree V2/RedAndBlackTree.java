@@ -18,7 +18,11 @@ public class RedAndBlackTree<T extends Comparable<T>>  {
         private String sTime;
         private String eDate;
         private String eTime;
-        private String channels;        // channel name
+        public String fra2_sDate;
+        public String fra2_sTime;
+        private Map<String, List<Integer>>  channelsIndex;        // channel Index
+        private Map<String, List<Long>>  channelsIndex2;        // channel Index
+        private String channelName;
         private String fileName;    // indexing
         // Tree part
         boolean color;        // red or black
@@ -26,12 +30,25 @@ public class RedAndBlackTree<T extends Comparable<T>>  {
         TreeNode<T> right;    // right child
         TreeNode<T> parent;    // parent
 
-        public TreeNode(String fileName, String startTime, String endTime, String channel, boolean color, TreeNode<T> parent, TreeNode<T> left, TreeNode<T> right) {
+        public TreeNode(String fileName, String startTime, String endTime, Map<String, List<Integer>> channelsIndex, String channelName, boolean color, TreeNode<T> parent, TreeNode<T> left, TreeNode<T> right) {
             this.startTime = startTime;
             this.endTime = endTime;
             modifyTime();
             this.fileName = fileName;
-            this.channels = channel;
+            this.channelsIndex = channelsIndex;
+            this.channelName = channelName;
+            this.color = color;
+            this.parent = parent;
+            this.left = left;
+            this.right = right;
+        }
+
+        public TreeNode(String fileName, String startTime, String endTime, Map<String, List<Long>> channelsIndex, boolean color, TreeNode<T> parent, TreeNode<T> left, TreeNode<T> right) {
+            this.startTime = startTime;
+            this.endTime = endTime;
+            modifyTime();
+            this.fileName = fileName;
+            this.channelsIndex2 = channelsIndex;
             this.color = color;
             this.parent = parent;
             this.left = left;
@@ -41,14 +58,18 @@ public class RedAndBlackTree<T extends Comparable<T>>  {
         private void modifyTime(){
             String temp1 = this.startTime.toString();
             String temp2 = this.endTime.toString();
-            if(!temp1.contains(",") || !temp2.contains(","))
+            if(!temp1.contains(",") || !temp2.contains(",")) {
+                System.out.println("modifyTime error");
                 return;
+            }
             String[] start = temp1.split(",");
             String[] end = temp2.split(",");
             this.sDate = start[0];
             this.sTime = start[1];
             this.eDate = end[0];
+            this.fra2_sDate = end[0];
             this.eTime = end[1];
+            this.fra2_sTime = end[1];
             addseconds(end[2]);
         }
 
@@ -112,18 +133,26 @@ public class RedAndBlackTree<T extends Comparable<T>>  {
         }
 
         public String getChannel(){
-            return channels;
+            return channelName;
         }
 
         public String getFileName(){
             return fileName;
         }
 
-        public String toString() {
-            return "filename: "+fileName+", starttime: "+startTime+", endtime"+endTime;
+        public Map<String, List<Integer>> getChannelsIndex(){
+            return channelsIndex;
         }
 
-        private int compareTo2(String s1, String s2){ // s1>s2 -> 1
+        public Map<String, List<Long>> getChannelsIndex2(){
+            return channelsIndex2;
+        }
+
+        public String toString() {
+            return "filename: "+fileName+", starttime: "+sDate+sTime+", endtime: "+eDate+eTime;
+        }
+
+        public int compareTo2(String s1, String s2){ // s1>s2 -> 1
             String[] temp = s1.split(",");
             String date1 = temp[0],
                     time1 = temp[1];
@@ -197,10 +226,21 @@ public class RedAndBlackTree<T extends Comparable<T>>  {
         return size;
     }
 
-    public void insertCSF(Map<String, List<String>> fileData){
-        Set<String> keys = fileData.keySet();
+    private void printIndexList(Map<String, List<Integer>> list){
+        Set<String> keys = list.keySet();
+        for(String key: keys){
+            List<Integer> temp = list.get(key);
+            System.out.println(key);
+            System.out.print(temp.get(0)+" "+temp.get(1));
+            System.out.println();
+        }
+    }
+
+    public void insertCSF(Map<String, List<String>> HeaderData, Map<String, Map<String, List<Integer>>> ChannelIndex){
+        Set<String> keys = HeaderData.keySet();
         for(String key:keys){
-            List<String> headerData = fileData.get(key);
+            List<String> headerData = HeaderData.get(key);
+            //printIndexList(ChannelIndex.get(key));
             String starttime = "";
             String endtime = "";
             Iterator<String> it = headerData.iterator();
@@ -214,7 +254,7 @@ public class RedAndBlackTree<T extends Comparable<T>>  {
             //System.out.println(key);
             //System.out.println(starttime);
             //System.out.println(endtime);
-            TreeNode<T> newNode=new TreeNode<T>(key, starttime, endtime, null, BLACK,null,null,null);
+            TreeNode<T> newNode=new TreeNode<T>(key, starttime, endtime, ChannelIndex.get(key),null, BLACK,null,null,null);
             if(newNode == null){
                 System.out.println("Failed to create a new node");
                 return;
@@ -227,8 +267,39 @@ public class RedAndBlackTree<T extends Comparable<T>>  {
         }
     }
 
+    public void insertCSF2(Map<String, List<String>> HeaderData, Map<String, Map<String, List<Long>>> ChannelIndex){
+        Set<String> keys = HeaderData.keySet();
+        for(String key:keys){
+            List<String> headerData = HeaderData.get(key);
+            String starttime = "";
+            String endtime = "";
+            Iterator<String> it = headerData.iterator();
+            if(it.hasNext())
+                starttime = it.next();
+            if(!it.hasNext())
+                endtime = starttime;
+            while(it.hasNext()){
+                endtime = it.next();
+            }
+            //System.out.println(key);
+            //System.out.println(starttime);
+            //System.out.println(endtime);
+            TreeNode<T> newNode=new TreeNode<T>(key, starttime, endtime, ChannelIndex.get(key), BLACK,null,null,null);
+            if(newNode == null){
+                System.out.println("Failed to create a new node");
+                return;
+            }
+            boolean success = insertNode(newNode);
+            //System.out.println(newNode.toString());
+            if(success == false)
+                System.out.println("Failed to insert "+key);
+            else
+                size++;
+        }
+    }
+
     public void insert(T time){
-        TreeNode<T> newNode=new TreeNode<T>(null, time.toString(),null, null, BLACK,null,null,null);
+        TreeNode<T> newNode=new TreeNode<T>(null, time.toString(),null, null,null, BLACK,null,null,null);
         if(newNode == null){
             System.out.println("Failed to create a new node");
             return;
